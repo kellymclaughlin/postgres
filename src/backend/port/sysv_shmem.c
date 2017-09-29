@@ -56,15 +56,20 @@
  * false, we might need to add compile and/or run-time tests here and do this
  * only if the running kernel supports it.
  *
- * However, we must always disable this logic in the EXEC_BACKEND case, and
+ * There are two cases in which we disable this logic. On systems that support
+ * intimate shared memory (e.g. illumos and Solaris), we prefer the usage of
+ * System V shared memory in order to take advantage of the performance
+ * improvements that sharing page tables provides.
+ *
+ * In addition, we must always disable this logic in the EXEC_BACKEND case, and
  * fall back to the old method of allocating the entire segment using System V
  * shared memory, because there's no way to attach an anonymous mmap'd segment
  * to a process after exec().  Since EXEC_BACKEND is intended only for
  * developer use, this shouldn't be a big problem.  Because of this, we do
  * not worry about supporting anonymous shmem in the EXEC_BACKEND cases below.
  */
-#ifndef EXEC_BACKEND
-#define USE_ANONYMOUS_SHMEM
+#if !defined(EXEC_BACKEND) && !defined(SHM_SHARE_MMU)
+#  define USE_ANONYMOUS_SHMEM
 #endif
 
 
