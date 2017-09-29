@@ -23,22 +23,20 @@
 /*
  * Determine which dynamic shared memory implementations will be supported
  * on this platform, and which one will be the default.
- * Note for systems which feature SHM_SHARE_MMU (e.g. illumos and Solaris)
- * we prefer System V Shared Memory instead of POSIX Shared Memory.
  */
 #ifdef WIN32
-#    define USE_DSM_WINDOWS
-#    define DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE		DSM_IMPL_WINDOWS
-#  else
-#    ifdef HAVE_SHM_OPEN
-#      define USE_DSM_POSIX
-#      define DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE	DSM_IMPL_POSIX
-#    endif
-#    define USE_DSM_SYSV
-#    if !defined(DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE) || defined(SHM_SHARE_MMU)
-#      define DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE	DSM_IMPL_SYSV
-#    endif
-#    define USE_DSM_MMAP
+#define USE_DSM_WINDOWS
+#define DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE		DSM_IMPL_WINDOWS
+#else
+#ifdef HAVE_SHM_OPEN
+#define USE_DSM_POSIX
+#define DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE		DSM_IMPL_POSIX
+#endif
+#define USE_DSM_SYSV
+#ifndef DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE
+#define DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE		DSM_IMPL_SYSV
+#endif
+#define USE_DSM_MMAP
 #endif
 
 /* GUC. */

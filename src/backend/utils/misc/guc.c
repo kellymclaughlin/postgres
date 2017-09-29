@@ -393,6 +393,19 @@ static const struct config_enum_entry force_parallel_mode_options[] = {
 	{NULL, 0, false}
 };
 
+static struct config_enum_entry shared_memory_options[] = {
+#ifndef WIN32
+	{ "sysv", SHMEM_TYPE_SYSV, false},
+#endif
+#ifndef EXEC_BACKEND
+	{ "mmap", SHMEM_TYPE_MMAP, false},
+#endif
+#ifdef WIN32
+	{ "windows", SHMEM_TYPE_WINDOWS, false},
+#endif
+	{NULL, 0, false}
+};
+
 /*
  * Options for enum values stored in other modules
  */
@@ -3744,6 +3757,16 @@ static struct config_enum ConfigureNamesEnum[] =
 		},
 		&wal_level,
 		WAL_LEVEL_MINIMAL, wal_level_options,
+		NULL, NULL, NULL
+	},
+
+	{
+		{"shared_memory_type", PGC_POSTMASTER, RESOURCES_MEM,
+			gettext_noop("Selects the shared memory implementation used."),
+			NULL
+		},
+		&shared_memory_type,
+		DEFAULT_SHARED_MEMORY_TYPE, shared_memory_options,
 		NULL, NULL, NULL
 	},
 
