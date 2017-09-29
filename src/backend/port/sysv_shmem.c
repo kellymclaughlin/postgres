@@ -68,8 +68,8 @@
  * developer use, this shouldn't be a big problem.  Because of this, we do
  * not worry about supporting anonymous shmem in the EXEC_BACKEND cases below.
  */
-#if !defined(EXEC_BACKEND) && !defined(SHM_SHARE_MMU)
-#  define USE_ANONYMOUS_SHMEM
+#if !defined(EXEC_BACKEND) && !defined(SHMEM_TYPE_SYSV)
+#define USE_ANONYMOUS_SHMEM
 #endif
 
 
@@ -582,17 +582,23 @@ PGSharedMemoryCreate(Size size, bool makePrivate, int port,
 	Assert(size > MAXALIGN(sizeof(PGShmemHeader)));
 
 #ifdef USE_ANONYMOUS_SHMEM
-	AnonymousShmem = CreateAnonymousSegment(&size);
-	AnonymousShmemSize = size;
+	if (shared_memory_type == SHMEM_TYPE_MMAP)
+	{
+		AnonymousShmem = CreateAnonymousSegment(&size);
+		AnonymousShmemSize = size;
 
-	/* Register on-exit routine to unmap the anonymous segment */
-	on_shmem_exit(AnonymousShmemDetach, (Datum) 0);
+		/* Register on-exit routine to unmap the anonymous segment */
+		on_shmem_exit(AnonymousShmemDetach, (Datum) 0);
 
-	/* Now we need only allocate a minimal-sized SysV shmem block. */
-	sysvsize = sizeof(PGShmemHeader);
-#else
-	sysvsize = size;
+		/* Now we need only allocate a minimal-sized SysV shmem block. */
+		sysvsize = sizeof(PGShmemHeader);
+	}
+	else
 #endif
+	{
+		Assert(shared_memory_type == SHMEM_TYPE_SYSV);
+		sysvsize = size;
+	}
 
 	/* Make sure PGSharedMemoryAttach doesn't fail without need */
 	UsedShmemSegAddr = NULL;
