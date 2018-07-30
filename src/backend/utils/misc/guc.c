@@ -1125,7 +1125,15 @@ static struct config_bool ConfigureNamesBool[] =
 		false,
 		NULL, NULL, NULL
 	},
-
+	{
+		{"wal_recycle", PGC_SUSET, WAL_SETTINGS,
+			gettext_noop("WAL recycling enabled."),
+			NULL
+		},
+		&wal_recycle,
+		true,
+		NULL, NULL, NULL
+	},
 	{
 		{"log_checkpoints", PGC_SIGHUP, LOGGING_WHAT,
 			gettext_noop("Logs each checkpoint."),
